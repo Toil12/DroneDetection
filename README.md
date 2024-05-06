@@ -9,7 +9,7 @@ Proposal:
 3. If instance segmentation, further research is required.
 4. Transformer as the backbone, and for further potential large model systems.
    + DETR+Swin
-   ![detr](Papers/DETR.png)
+   ![detr](papers/DETR.png)
    + 
 
   
@@ -19,7 +19,7 @@ Background:
 1. CNN structured model cannot easily detect small objects.
 2. Model demos are not with high resolution images.
 3. High resolution may lead to some waste
-[![Resolution_Power_AP.png](Papers/Resolution_Power_AP.png)](https://openaccess.thecvf.com/content/ICCV2023W/RCV/papers/Tran_Fast_Object_Detection_in_High-Resolution_Videos_ICCVW_2023_paper.pdf)
+[![Resolution_Power_AP.png](papers/Resolution_Power_AP.png)](https://openaccess.thecvf.com/content/ICCV2023W/RCV/papers/Tran_Fast_Object_Detection_in_High-Resolution_Videos_ICCVW_2023_paper.pdf)
 
 Yolo
 ----
