@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time         :2024/4/17 23:28
 # @Author       :ywLi
-# @File         :test.py
+# @File         :val.py
 # @Institute    :DonghaiLab
 
 import requests
