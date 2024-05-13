@@ -1,9 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# @Time         :2024/4/17 23:28
-# @Author       :ywLi
-# @File         :val.py
-# @Institute    :DonghaiLab
+"""
+coding:utf-8
+@Time       :2024/5/13 16:31
+@Author     :ywLi
+@Institute  :DonghaiLab
+"""
 
 import requests
 import logging
