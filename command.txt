@@ -1,2 +1,2 @@
 python detect.py --source "../datasets/usc_5/images/train" --data "data/usc_5.yaml" --imgsz 1280
-python train.py --data "data/usc_5.yaml" --imgsz 1280 --optimizer "Adam"
+nohup python3 train.py --data "data/usc_5.yaml" --imgsz 1280 --optimizer "Adam" --device 0,1
