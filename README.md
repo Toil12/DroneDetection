@@ -31,13 +31,21 @@ Yolo
 Yolov5
 ----
 ![yolov5.jpg](papers/yolov5.jpg)
-1. Focus:
+1. Focus: Accelerate the downsampling?(Switched by 6*6 Conv in V6)
 2. FPN+PAN(Feature Pyramid Network+Pyramid Attention Network)
-   + FPN: to detect multi-scal objects;
-   + PAN: to merge 
+   + FPN: to detect multi-scal objects; to let high resolution also with strong semantics
+   + ![FPN](papers/FPN.png)
+   + PAN: local consistency
 3. SPP(Spatial Pyramid Pooling): multi-scales fusion
-4. Loss:
-   
+4. Loss: 
+   + CLS:BCE
+   + OBJ:CIOU_LOSS between GT and prediction, weighted for balance
+   + Location loss: CIOU_LOSS
+     + $b_x=\sigma(t_x)+c_x$
+     + $b_y=\sigma(t_y)+c_y$
+     + $b_w=p_w\cdot e^{t_w}$
+     + $b_h=p_h\cdot e^{t_h}$
+5. NMS and Grid Sensitivity
 Yolov5_v6
 ----
 ![yolov5_v6.png](papers/yolov5_v6.png)
@@ -45,6 +53,15 @@ Yolov5_v6
 2. Focus->6*6 Conv: faster
 3. SPPF: parallel to sequential, reduce the parameters
 4. CSP->C3: use bottleneck to reduce the parameters
-5. SiLu: less computation than Mish
+5. SiLu: less computation than Mish and also improve the "dead" problem of ReLu
+6. Loss: 
+   + CLS:BCE
+   + OBJ:CIOU_LOSS between GT and prediction, weighted for balance
+   + Location loss: CIOU_LOSS, only positive samples
+     + $b_x=(2\cdot\sigma(t_x)-0.5)+c_x$
+     + $b_y=(2\cdot\sigma(t_y)-0.5)+c_y$
+     + $b_w=p_w\cdot(2\cdot\sigma(t_w))^2$
+     + $b_h=p_h\cdot(2\cdot\sigma(t_h))^2$
+     + relocate the limits to $(-0.5,1.5)$
 
 
