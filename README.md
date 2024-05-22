@@ -64,4 +64,14 @@ Yolov5_v6
      + $b_h=p_h\cdot(2\cdot\sigma(t_h))^2$
      + relocate the limits to $(-0.5,1.5)$
 
+Yolov8
+----
+1. Focal Loss: 
+   + CE->BCE->FL
+   + $FL(p_t)=-a_t(1-p_t)^\gamma log(p_t)$
+   + $a_t$ improves class imbalance, negative and positives examples.
+   + Modulating term $(1-p_t)^\gamma$ down-weight the contribution of easy examples during training and rapidly focus the model on hard examples. $\gamma$>0 reduces the relatives loss for well-classified examples.
+2. ELAN:
+   + 
+
 
