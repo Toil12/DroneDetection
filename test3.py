@@ -6,14 +6,10 @@ coding:utf-8
 """
 import torch
 
-# Model loading
-model = torch.hub.load("ultralytics/yolov5", "yolov5s")  # Can be 'yolov5n' - 'yolov5x6', or 'custom'
+import torch
 
-# Inference on images
-img = f"./datasets/usc_5"  # Can be a file, Path, PIL, OpenCV, numpy, or list of images
+a = torch.arange(15).reshape(5, 3)
+r1=a.split((2,1), 1)
 
-# Run inference
-results = model(img)
-
-# Display results
-results.print()  # Other options: .show(), .save(), .crop(), .pandas(), etc.
+print(a)
+print(r1)
