@@ -1,8 +1,9 @@
 from ultralytics import YOLO
+import torch
 
 # Load a model
 # model = YOLO('yolov8n.yaml')  # build a new model from YAML
-model = YOLO('models/yolov8n.pt')  # load a pretrained model (recommended for training)
+model = torch.load('models/yolov8n.pt')  # load a pretrained model (recommended for training)
 # model = YOLO('yolov8n.yaml').load('yolov8n.pt')  # build from YAML and transfer weights
 
 # Train the model
