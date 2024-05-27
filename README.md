@@ -72,6 +72,6 @@ Yolov8
    + $a_t$ improves class imbalance, negative and positives examples.
    + Modulating term $(1-p_t)^\gamma$ down-weight the contribution of easy examples during training and rapidly focus the model on hard examples. $\gamma$>0 reduces the relatives loss for well-classified examples.
 2. ELAN:
-   + 
+3. Multiple decoupled heads
 
 
