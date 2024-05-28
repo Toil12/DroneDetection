@@ -1,5 +1,5 @@
 python detect.py --source "../datasets/usc_5/images/train" --data "data/usc_5.yaml" --imgsz 1280
-nohup python train.py --data "data/usc_5.yaml" --imgsz 1280 --weights "yolov5l6.pt" --optimizer "Adam" --device 0,1
+nohup python train.py --data "data/usc_5.yaml" --imgsz 1280 --weights "yolov5l6.pt" --optimizer "Adam" --device 0,1 --cache ram
 python train.py --data "data/usc_5.yaml" --imgsz 1280 --weights "yolov5l6.pt" --optimizer "Adam"
 
 scp D:\Codes\python\DroneDetection\yolov5-master\yolov5l6.pt root@172.24.139.61:/home/ubuntu/DroneDetection/yolov5-master
