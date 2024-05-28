@@ -29,7 +29,7 @@ images_training=[x.split('.')[0] for x in os.listdir(image_path)]
 
 image_example=Image.open(f'{image_path}/{os.listdir(f"datasets/usc_5/images/train")[0]}')
 image_example=np.array(image_example)
-w,h,c=image_example.shape
+h,w,c=image_example.shape
 # print(w,h,c)
 
 # Each data is with 4 features, x_center, y_center, width, height in pixels
@@ -37,8 +37,6 @@ labels = annotations['box']
 labels = np.array(labels)
 # print(labels[0:5])
 # print(type(labels[0][0]))
-
-
 
 # Transform the original coordination to the yolo form image by image
 for i in range(len(labels)):
@@ -48,11 +46,12 @@ for i in range(len(labels)):
     org_h=labels[i][3]
 
     yolo_x= (org_x+org_w/2)/ w
-    yolo_y= (org_y+org_h)/ h
+    yolo_y= (org_y+org_h/2)/ h
     yolo_w= org_w/ w
     yolo_h= org_h/ h
-
+    # print(yolo_x,yolo_y,yolo_w,yolo_h)
     file_name = str((i + 1) * 10)
+
     # Visualize the annotation
     # image=cv2.imread(f'{image_path}/{file_name}.jpg')
     # print((org_x-org_w/2, org_y-org_h/2), (org_x+org_w/2, org_y+org_h/2))
