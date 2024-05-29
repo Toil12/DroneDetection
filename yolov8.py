@@ -10,8 +10,8 @@ from ultralytics import YOLO
 model = YOLO("yolov8s.pt")  # load a pretrained model (recommended for training)
 
 # Train the model with 2 GPUs
-results = model.train(data=f"../yolov5-master/data/usc_5.yaml",
+results = model.train(data=f"./yolov5-master/data/usc_5.yaml",
                       epochs=100,
                       imgsz=1280,
-                      device=[0,1],
+                      device='cpu',
                       optimizer='Adam')
