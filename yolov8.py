@@ -17,5 +17,5 @@ model = YOLO("yolov8s.pt")  # load a pretrained model (recommended for training)
 results = model.train(data=datapath,
                       epochs=100,
                       imgsz=1280,
-                      device='cpu',
+                      device=[0,1],
                       optimizer='Adam')
