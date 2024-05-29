@@ -5,12 +5,16 @@ coding:utf-8
 @Institute  :DonghaiLab
 """
 from ultralytics import YOLO
+import pathlib
+
+datapath=pathlib.Path("yolov5-master","data","usc_5.yaml")
+print(datapath)
 
 # Load a model
 model = YOLO("yolov8s.pt")  # load a pretrained model (recommended for training)
 
 # Train the model with 2 GPUs
-results = model.train(data=f"./yolov5-master/data/usc_5.yaml",
+results = model.train(data=datapath,
                       epochs=100,
                       imgsz=1280,
                       device=[0,1],
