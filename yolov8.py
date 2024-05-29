@@ -6,9 +6,9 @@ coding:utf-8
 """
 from ultralytics import YOLO
 import pathlib
+import os
 
-datapath=pathlib.Path("yolov5-master","data","usc_5.yaml")
-print(datapath)
+datapath=pathlib.Path(os.path.curdir,"usc_5_v8.yaml")
 
 # Load a model
 model = YOLO("yolov8s.pt")  # load a pretrained model (recommended for training)
@@ -17,5 +17,5 @@ model = YOLO("yolov8s.pt")  # load a pretrained model (recommended for training)
 results = model.train(data=datapath,
                       epochs=100,
                       imgsz=1280,
-                      device=[0,1],
+                      device='cpu',
                       optimizer='Adam')
