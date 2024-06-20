@@ -6,6 +6,7 @@ import math
 
 dtype = torch.float
 # device = torch.device("cpu")
+print(torch.cuda.device_count())
 device = torch.device("cuda:0") # Uncomment this to run on GPU
 
 # Create random input and output data
