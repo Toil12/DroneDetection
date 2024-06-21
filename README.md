@@ -66,11 +66,13 @@ Yolov5_v6
 
 Yolov8
 ----
+![yolov8.png](papers/yolov8.jpg)
 1. Focal Loss: 
    + CE->BCE->FL
    + $FL(p_t)=-a_t(1-p_t)^\gamma log(p_t)$
    + $a_t$ improves class imbalance, negative and positives examples.
    + Modulating term $(1-p_t)^\gamma$ down-weight the contribution of easy examples during training and rapidly focus the model on hard examples. $\gamma$>0 reduces the relatives loss for well-classified examples.
+   + DFL: 
 2. ELAN:
 3. Multiple decoupled heads
 
