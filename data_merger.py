@@ -4,6 +4,9 @@ import os
 import os.path as osp
 import shutil
 import time
+import matplotlib.image as mping
+import matplotlib.pyplot as plt
+import platform
 
 from glob import glob
 from PIL import Image
@@ -13,6 +16,13 @@ IN_DIRECT="data_complete"
 OUTPUT_IMAGES_DIRECT="all_images"
 OUTPUT_ANNOTATION_DIRECT="all_annotations"
 BASE_PATH=osp.join(os.curdir)
+
+system=platform.system().lower()
+slash=""
+if system == 'windows':
+    slash="\\"
+elif system == 'linux':
+    slash="/"
 # print(BASE_PATH)
 # print(os.path.exists(BASE_PATH))
 
@@ -22,6 +32,12 @@ class DataMerger():
         self.output_image=osp.join(base_path,out_direct[0])
         self.output_anno = osp.join(base_path, out_direct[1])
         self.source_directs=os.listdir(self.source)
+
+        self.new_data_images_path=osp.join(BASE_PATH,"datasets","usc_all","images")
+        self.new_data_anno_path=osp.join(BASE_PATH,"datasets","usc_all","labels")
+
+        self.new_data_images_path_val=osp.join(BASE_PATH,"datasets","usc_all","images_val")
+        self.new_data_anno_path_val=osp.join(BASE_PATH,"datasets","usc_all","labels_val")
     def data_merger(self):
         shutil.rmtree(self.output_image)
         shutil.rmtree(self.output_anno)
@@ -40,6 +56,12 @@ class DataMerger():
         annotations=scipy.io.loadmat(label_path)
         labels = annotations['box']
         labels = np.array(labels)
+        for img in image_paths:
+            # print(img.split(slash)[-2])
+            id,d=img.split(slash)[-1:-3:-1]
+            img_file_name=f'{self.output_image}{slash}{d}_{id.split(".")[0]}.txt'
+            with open(img_file_name, mode='w') as f:
+                f.write(img)
 
         for i in range(len(labels)):
             org_x = labels[i][0]
@@ -63,26 +85,39 @@ class DataMerger():
                 f.write(str(yolo_h) + ' ')
 
             # store name-modified images
-            for path in image_paths:
-                with open(f'{self.output_image}/{file_name}.txt', mode='w') as f:
-                    f.write(path)
+
     def data_split(self):
         annotations=os.listdir(self.output_anno)
         images=os.listdir(self.output_image)
         image_annotation_tuples=list(zip(images,annotations))
-        train_tuples, test_tuples = train_test_split(image_annotation_tuples,
+        train_tuples, val_tuples = train_test_split(image_annotation_tuples,
                                                      train_size=0.9,
                                                      test_size=0.1,
                                                      shuffle=True
                                                      )
-        print(len(train_tuples))
-        print(len(test_tuples))
+        # print(len(train_tuples))
+        # print(len(test_tuples))
 
+        print(train_tuples)
+        for t in train_tuples:
+            img_path=""
+            with open(osp.join(self.output_image,t[0])) as f:
+                img_path=f.read()
+                # print(img_path)
+            image=mping.imread(img_path)
+            image_id,file_id=img_path.split(slash)[-1:-3:-1]
+            plt.imsave(osp.join(self.new_data_images_path,f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
+            shutil.copy(osp.join(self.output_anno,f"{t[1]}"),osp.join(self.new_data_anno_path,f"{t[1]}"))
 
-
-
-        # print(annotations)
-        # print(images)
+        for t in val_tuples:
+            img_path=""
+            with open(osp.join(self.output_image,t[0])) as f:
+                img_path=f.read()
+                # print(img_path)
+            image=mping.imread(img_path)
+            image_id,file_id=img_path.split(slash)[-1:-3:-1]
+            plt.imsave(osp.join(self.new_data_images_path_val,f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
+            shutil.copy(osp.join(self.output_anno,f"{t[1]}"),osp.join(self.new_data_anno_path_val,f"{t[1]}"))
 
 
 
