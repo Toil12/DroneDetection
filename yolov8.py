@@ -19,7 +19,7 @@ if __name__ == '__main__':
     # Load a model
     model = YOLO("yolov8s.pt")  # load a pretrained model (recommended for training)
 
-    # Train the model with all GPUs
+    # Train the model with all_images GPUs
     results = model.train(data=datapath,
                           epochs=100,
                           imgsz=1280,
