@@ -2,4 +2,7 @@ python detect.py --source "../datasets/usc_5/images/train" --data "data/usc_5.ya
 nohup python train.py --data "data/usc_5.yaml" --imgsz 1280 --weights "yolov5l6.pt" --optimizer "Adam" --device 0,1
 python train.py --data "data/usc_5.yaml" --imgsz 1280 --weights "yolov5s6.pt" --optimizer "Adam"
 
+
+nohup python yolov8.py > ~/DroneDetection/train_log.txt &
+
 C:\Users\Lenovo\Downloads\yolov5l6.pt
