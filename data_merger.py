@@ -103,8 +103,8 @@ class DataMerger():
         images=os.listdir(self.output_image)
         image_annotation_tuples=list(zip(images,annotations))
         train_tuples, val_tuples = train_test_split(image_annotation_tuples,
-                                                     train_size=0.8,
-                                                     test_size=0.2,
+                                                     train_size=0.9,
+                                                     test_size=0.1,
                                                      shuffle=True
                                                      )
         # print(len(train_tuples))
@@ -127,8 +127,6 @@ class DataMerger():
             image_id,file_id=img_path.split(slash)[-1:-3:-1]
             plt.imsave(osp.join(self.new_data_images_path,"val",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
             shutil.copy(osp.join(self.output_anno,f"{t[1]}"),osp.join(self.new_data_anno_path,"val",f"{t[1]}"))
-
-
 
 if __name__ == '__main__':
     s_time=time.time()
