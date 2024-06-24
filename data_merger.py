@@ -103,8 +103,8 @@ class DataMerger():
         images=os.listdir(self.output_image)
         image_annotation_tuples=list(zip(images,annotations))
         train_tuples, val_tuples = train_test_split(image_annotation_tuples,
-                                                     train_size=0.99,
-                                                     test_size=0.01,
+                                                     train_size=0.8,
+                                                     test_size=0.2,
                                                      shuffle=True
                                                      )
         # print(len(train_tuples))
