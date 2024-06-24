@@ -22,7 +22,7 @@ if __name__ == '__main__':
     # print(devices)
 
     # Load a model
-    model = YOLO("yolov8m.pt")  # load a pretrained model (recommended for training)
+    model = YOLO("yolov8s.pt")  # load a pretrained model (recommended for training)
 
     # Train the model with all_images GPUs
     results = model.train(data=datapath,
