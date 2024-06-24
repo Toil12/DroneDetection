@@ -30,4 +30,3 @@ if __name__ == '__main__':
                           imgsz=1280,
                           device=devices,
                           optimizer='Adam')
-    model.val()
