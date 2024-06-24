@@ -11,10 +11,12 @@ import cv2
 from ultralytics import YOLO
 
 # Load a pretrained YOLOv8n model
-model = YOLO(f"./models/v8_17.pt")
+model = YOLO(f"./models/v8x_best.pt")
 
 # Create a random torch tensor of BCHW shape (1, 3, 640, 640) with values in range [0, 1] and type float32
-source = r"D:\Codes\python\DroneDetection\datasets\usc_all\images\train\1_20.jpg"
+# source = r"D:\Codes\python\DroneDetection\datasets\usc_all\images\train\1_20.jpg"
+
+source = r"D:\Codes\python\DroneDetection\0101280.jpg"
 
 # Run inference on the source
 results = model(source)  # list of Results objects
