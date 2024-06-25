@@ -83,7 +83,7 @@ class DataMerger():
                 f.write(str(yolo_x) + ' ')
                 f.write(str(yolo_y) + ' ')
                 f.write(str(yolo_w) + ' ')
-                f.write(str(yolo_h) + ' ')
+                f.write(str(yolo_h))
 
             # store name-modified images
 
