@@ -7,11 +7,9 @@ coding:utf-8
 import os.path
 
 import matplotlib.pyplot as plt
-import torch
 import cv2
 
 from ultralytics import YOLO
-
 # Load a pretrained YOLOv8n model
 model = YOLO(f"./models/v8x_best.pt")
 
