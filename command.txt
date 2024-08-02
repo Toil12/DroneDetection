@@ -6,3 +6,5 @@ python train.py --data "data/usc_5.yaml" --imgsz 1280 --weights "yolov5s6.pt" --
 nohup python yolov8.py > ~/DroneDetection/train_log.txt &
 
 C:\Users\Lenovo\Downloads\yolov5l6.pt
+
+python yolov8_train.py --model "yolo_v10"
