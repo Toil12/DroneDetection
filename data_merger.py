@@ -85,7 +85,7 @@ class DataMerger():
                 f.write(str(yolo_w) + ' ')
                 f.write(str(yolo_h))
 
-            # store name-modified images
+    # store name-modified images
 
     def data_split(self):
         shutil.rmtree(osp.join(self.new_data_images_path,"train"))
@@ -98,27 +98,26 @@ class DataMerger():
         os.mkdir(osp.join(self.new_data_anno_path, "train"))
         os.mkdir(osp.join(self.new_data_anno_path, "val"))
 
-
+        # Split the data into training and test
         annotations=os.listdir(self.output_anno)
         images=os.listdir(self.output_image)
         image_annotation_tuples=list(zip(images,annotations))
         train_tuples, val_tuples = train_test_split(image_annotation_tuples,
-                                                     train_size=0.9,
-                                                     test_size=0.1,
+                                                     train_size=0.8,
+                                                     test_size=0.2,
                                                      shuffle=True
                                                      )
-        # print(len(train_tuples))
-        # print(len(test_tuples))
 
+        # Make annotations and images as pairs in training set
         for t in train_tuples:
             with open(osp.join(self.output_image,t[0])) as f:
                 img_path=f.read()
-                # print(img_path)
             image=mping.imread(img_path)
             image_id,file_id=img_path.split(slash)[-1:-3:-1]
             plt.imsave(osp.join(self.new_data_images_path,"train",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
             shutil.copy(osp.join(self.output_anno,f"{t[1]}"),osp.join(self.new_data_anno_path,"train",f"{t[1]}"))
 
+        # Make annotations and images as pairs in validation set
         for t in val_tuples:
             with open(osp.join(self.output_image,t[0])) as f:
                 img_path=f.read()

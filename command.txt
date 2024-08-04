@@ -7,4 +7,4 @@ nohup python yolov8.py > ~/DroneDetection/train_log.txt &
 
 C:\Users\Lenovo\Downloads\yolov5l6.pt
 
-python yolov8_train.py --model "yolo_v10"
+python yolov8_train.py --model "yolo_v10" --imgsz 1280
