@@ -4,13 +4,13 @@ import os
 import os.path as osp
 import shutil
 import time
-import matplotlib.image as mping
-import matplotlib.pyplot as plt
 import platform
+import cv2
 
 from glob import glob
 from PIL import Image
 from sklearn.model_selection import train_test_split
+from Image_preprocessor import ImagePreProcessor as imgpp
 
 IN_DIRECT="data_complete"
 OUTPUT_IMAGES_DIRECT="all_images"
@@ -27,7 +27,11 @@ elif system == 'linux':
 # print(os.path.exists(BASE_PATH))
 
 class DataMerger():
-    def __init__(self,in_direct=IN_DIRECT,out_direct=(OUTPUT_IMAGES_DIRECT,OUTPUT_ANNOTATION_DIRECT),base_path=BASE_PATH):
+    def __init__(self,
+                 in_direct=IN_DIRECT,
+                 out_direct=(OUTPUT_IMAGES_DIRECT,OUTPUT_ANNOTATION_DIRECT),
+                 base_path=BASE_PATH
+                 ):
         self.source=osp.join(base_path,in_direct)
         self.output_image=osp.join(base_path,out_direct[0])
         self.output_anno = osp.join(base_path, out_direct[1])
@@ -87,7 +91,13 @@ class DataMerger():
 
     # store name-modified images
 
-    def data_split(self):
+    def data_split(self, agg_pars=None):
+        if agg_pars is None:
+            agg_pars = {
+                "gray": 0,
+                "hist": 0,
+                "lap": 0
+            }
         shutil.rmtree(osp.join(self.new_data_images_path,"train"))
         shutil.rmtree(osp.join(self.new_data_images_path, "val"))
         shutil.rmtree(osp.join(self.new_data_anno_path, "train"))
@@ -112,9 +122,12 @@ class DataMerger():
         for t in train_tuples:
             with open(osp.join(self.output_image,t[0])) as f:
                 img_path=f.read()
-            image=mping.imread(img_path)
+            image=cv2.imread(img_path)
+
+            image=imgpp.main_process(image,agg_pars)
+            #
             image_id,file_id=img_path.split(slash)[-1:-3:-1]
-            plt.imsave(osp.join(self.new_data_images_path,"train",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
+            cv2.imwrite(osp.join(self.new_data_images_path,"train",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
             shutil.copy(osp.join(self.output_anno,f"{t[1]}"),osp.join(self.new_data_anno_path,"train",f"{t[1]}"))
 
         # Make annotations and images as pairs in validation set
@@ -122,15 +135,21 @@ class DataMerger():
             with open(osp.join(self.output_image,t[0])) as f:
                 img_path=f.read()
                 # print(img_path)
-            image=mping.imread(img_path)
+            image=cv2.imread(img_path)
             image_id,file_id=img_path.split(slash)[-1:-3:-1]
-            plt.imsave(osp.join(self.new_data_images_path,"val",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
+            cv2.imwrite(osp.join(self.new_data_images_path,"val",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
             shutil.copy(osp.join(self.output_anno,f"{t[1]}"),osp.join(self.new_data_anno_path,"val",f"{t[1]}"))
 
 if __name__ == '__main__':
+    pro_pars={
+             "gray":1,
+             "hist":1,
+             "lap":1
+            }
     s_time=time.time()
+
     dm=DataMerger()
     dm.data_merger()
-    dm.data_split()
+    dm.data_split(agg_pars=pro_pars)
     e_time=time.time()
     print(f"cost {e_time-s_time}")
