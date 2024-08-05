@@ -142,10 +142,10 @@ class DataMerger():
 
 if __name__ == '__main__':
     pro_pars={
-             "gray":1,
-             "hist":1,
-             "lap":1
-            }
+             "gray":0,
+             "hist":0,
+             "lap":0
+             }
     s_time=time.time()
 
     dm=DataMerger()
