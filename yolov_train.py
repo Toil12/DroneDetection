@@ -14,7 +14,7 @@ import torch
 if __name__ == '__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument("--model_name",default="yolo_v8",type=str)
-    parser.add_argument("--epochs",default=100,type=int)
+    parser.add_argument("--epochs",default=300,type=int)
     parser.add_argument("--imgsz",default=640,type=int)
     parser.add_argument("--data_path",default="usc_5_v8.yaml",type=str)
 
@@ -34,6 +34,8 @@ if __name__ == '__main__':
         model = YOLO("yolov8s.pt")  # load a pretrained model (recommended for training)
     elif args.model_name=="yolo_v10":
         model = YOLO("yolov10s.pt")
+    elif args.model_name=="yolo_v10x":
+        model = YOLO("yolov10x.pt")
     # Train the model with all_images GPUs
     results = model.train(data=datapath,
                           epochs=args.epochs,

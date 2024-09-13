@@ -15,18 +15,18 @@ from ultralytics import YOLO
 model = YOLO(f"./models/v8x_best.pt")
 
 # Get the input image and the corresponding
-file_name = "1_390"
-img_source = rf"D:\Codes\python\DroneDetection\datasets\usc_all\images\train\{file_name}.jpg"
-video_source = rf"D:\Codes\python\DroneDetection\internet18.avi"
+file_name = "10"
+img_source = rf"D:\Codes\python\DroneDetection\{file_name}.jpg"
+video_source = rf"D:\Codes\python\DroneDetection\phantom47.mp4"
 anno_source = rf"D:\Codes\python\DroneDetection\datasets\usc_all\labels\train\{file_name}.txt"
 
 # Plot the original image
-fix, ax = plt.subplots(2, 1)
-img_bgr = cv2.imread(img_source)
-height, width, channel = img_bgr.shape
-print(width, height)
-ax[0].imshow(img_bgr[:, :, ::-1])
-ax[0].set_title("Original Image")
+# fix, ax = plt.subplots(2, 1)
+# img_bgr = cv2.imread(img_source)
+# height, width, channel = img_bgr.shape
+# print(width, height)
+# ax[0].imshow(img_bgr[:, :, ::-1])
+# ax[0].set_title("Original Image")
 
 # Run inference on the source
 results = model(img_source, save=True, show=True)  # list of Results objects
