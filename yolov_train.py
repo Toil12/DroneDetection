@@ -30,9 +30,9 @@ if __name__ == '__main__':
 
     # Load a model
     model=0
-    if args.model_name=="yolo_v8":
+    if args.model_name=="yolo_v8s":
         model = YOLO("yolov8s.pt")  # load a pretrained model (recommended for training)
-    elif args.model_name=="yolo_v10":
+    elif args.model_name=="yolo_v10s":
         model = YOLO("yolov10s.pt")
     elif args.model_name=="yolo_v10x":
         model = YOLO("yolov10x.pt")
