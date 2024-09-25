@@ -6,6 +6,7 @@ import time
 
 import cv2
 import numpy as np
+import time
 from PIL import Image
 
 from detr import Detection_Transformers
@@ -76,6 +77,7 @@ if __name__ == "__main__":
         while True:
             img = input('Input image filename:')
             try:
+                start_time = time.time()
                 image = Image.open(img)
             except:
                 print('Open Error! Try again!')
@@ -83,6 +85,9 @@ if __name__ == "__main__":
             else:
                 r_image = detr.detect_image(image, crop = crop, count=count)
                 r_image.show()
+
+            end_time = time.time()
+            print(f"use {end_time-start_time}s for prediction ")
 
     elif mode == "video":
         capture = cv2.VideoCapture(video_path)
@@ -156,3 +161,4 @@ if __name__ == "__main__":
         
     else:
         raise AssertionError("Please specify the correct mode: 'predict', 'video', 'fps', 'export_onnx', 'dir_predict'.")
+

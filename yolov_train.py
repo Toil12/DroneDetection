@@ -4,11 +4,17 @@ coding:utf-8
 @Author     :ywLi
 @Institute  :DonghaiLab
 """
-from ultralytics import YOLO
+from ultralytics import YOLO,RTDETR
 import argparse
 import pathlib
 import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import torch
+DATA_ROOT=os.path.join(os.getcwd(),"datasets_processed")
+TRAINED_MODEL_ROOT=os.path.join(os.getcwd(),"trained_models")
+YOLO_DATA_ROOT=os.path.join(os.getcwd(),"yolo_data_files")
+# print(TRAINED_MODEL_ROOT,YOLO_DATA_ROOT,DATA_ROOT)
 
 
 if __name__ == '__main__':
@@ -21,7 +27,8 @@ if __name__ == '__main__':
     args=parser.parse_args()
 
 
-    datapath=pathlib.Path(os.path.curdir,args.data_path)
+    datapath=pathlib.Path(YOLO_DATA_ROOT,args.data_path)
+    # print(datapath)
     # testpath=pathlib.Path(os.path.curdir,"")
 
     devices_count=torch.cuda.device_count()
@@ -31,12 +38,18 @@ if __name__ == '__main__':
     # Load a model
     model=0
     if args.model_name=="yolo_v8":
-        model = YOLO("yolov8s.pt")  # load a pretrained model (recommended for training)
+        model_path=os.path.join(TRAINED_MODEL_ROOT,"yolov8s.pt")  # load a pretrained model (recommended for training)
+        print(model_path)
+        model=YOLO(model_path)
     elif args.model_name=="yolo_v10":
-        model = YOLO("yolov10s.pt")
+        model_path=os.path.join(TRAINED_MODEL_ROOT,"yolov10s.pt")
+        model=YOLO(model_path)
+    elif args.model_name=="rtdetr":
+        model_path = os.path.join(TRAINED_MODEL_ROOT, "rtdetr-x.pt")
+        model=RTDETR(model_path)
     # Train the model with all_images GPUs
     results = model.train(data=datapath,
                           epochs=args.epochs,
                           imgsz=args.imgsz,
-                          device=devices,
+                          device="cuda:1",
                           optimizer='Adam')
