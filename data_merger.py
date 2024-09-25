@@ -13,8 +13,9 @@ from sklearn.model_selection import train_test_split
 from Image_preprocessor import ImagePreProcessor as imgpp
 
 IN_DIRECT="data_complete"
-OUTPUT_IMAGES_DIRECT="all_images"
-OUTPUT_ANNOTATION_DIRECT="all_annotations"
+OUTPUT_IMAGES_DIR= "all_images"
+OUTPUT_ANNOTATION_DIR= "all_annotations"
+DESTINATION_DIR="datasets_processed"
 BASE_PATH=osp.join(os.curdir)
 
 system=platform.system().lower()
@@ -29,22 +30,22 @@ elif system == 'linux':
 class DataMerger():
     def __init__(self,
                  in_direct=IN_DIRECT,
-                 out_direct=(OUTPUT_IMAGES_DIRECT,OUTPUT_ANNOTATION_DIRECT),
+                 out_direct=(OUTPUT_IMAGES_DIR, OUTPUT_ANNOTATION_DIR),
                  base_path=BASE_PATH
                  ):
         self.source=osp.join(base_path,in_direct)
-        self.output_image=osp.join(base_path,out_direct[0])
-        self.output_anno = osp.join(base_path, out_direct[1])
+        self.output_image_dir=osp.join(base_path, out_direct[0])
+        self.output_anno_dir = osp.join(base_path, out_direct[1])
         self.source_directs=os.listdir(self.source)
 
-        self.new_data_images_path=osp.join(BASE_PATH,"datasets","usc_all","images")
-        self.new_data_anno_path=osp.join(BASE_PATH,"datasets","usc_all","labels")
+        self.new_data_images_path=osp.join(BASE_PATH,DESTINATION_DIR,"usc_all","images")
+        self.new_data_anno_path=osp.join(BASE_PATH,DESTINATION_DIR,"usc_all","labels")
 
     def data_merger(self):
-        shutil.rmtree(self.output_image)
-        shutil.rmtree(self.output_anno)
-        os.mkdir(self.output_image)
-        os.mkdir(self.output_anno)
+        shutil.rmtree(self.output_image_dir)
+        shutil.rmtree(self.output_anno_dir)
+        os.mkdir(self.output_image_dir)
+        os.mkdir(self.output_anno_dir)
         # redirect the
         for direct in self.source_directs:
             # print(self.source)
@@ -61,7 +62,7 @@ class DataMerger():
         for img in image_paths:
             # print(img.split(slash)[-2])
             id,d=img.split(slash)[-1:-3:-1]
-            img_file_name=f'{self.output_image}{slash}{d}_{id.split(".")[0]}.txt'
+            img_file_name=f'{self.output_image_dir}{slash}{d}_{id.split(".")[0]}.txt'
             with open(img_file_name, mode='w') as f:
                 f.write(img)
 
@@ -82,7 +83,7 @@ class DataMerger():
             file_name = f"{direct_id}_{((i + 1) * 10)}"
 
             # store annotations
-            with open(f'{self.output_anno}/{file_name}.txt', mode='w') as f:
+            with open(f'{self.output_anno_dir}/{file_name}.txt', mode='w') as f:
                 f.write("0" + ' ')
                 f.write(str(yolo_x) + ' ')
                 f.write(str(yolo_y) + ' ')
@@ -109,36 +110,52 @@ class DataMerger():
         os.mkdir(osp.join(self.new_data_anno_path, "val"))
 
         # Split the data into training and test
-        annotations=os.listdir(self.output_anno)
-        images=os.listdir(self.output_image)
+        annotations=os.listdir(self.output_anno_dir)
+        images=os.listdir(self.output_image_dir)
         image_annotation_tuples=list(zip(images,annotations))
         train_tuples, val_tuples = train_test_split(image_annotation_tuples,
                                                      train_size=0.8,
                                                      test_size=0.2,
-                                                     shuffle=True
+                                                     shuffle=False
                                                      )
 
         # Make annotations and images as pairs in training set
         for t in train_tuples:
-            with open(osp.join(self.output_image,t[0])) as f:
-                img_path=f.read()
-            image=cv2.imread(img_path)
+            with open(osp.join(self.output_anno_dir, f"{t[1]}")) as f:
+                # Drop data which is not with a target in the view, pos in positions < 0
+                positions=f.read().split(" ")
+                for pos in positions[1:]:
+                    pos=float(pos)
+                    if pos<0:
+                        continue
+                    else:
+                        with open(osp.join(self.output_image_dir, t[0])) as f:
+                            img_path=f.read()
+                        image=cv2.imread(img_path)
 
-            image=imgpp.main_process(image,agg_pars)
-            #
-            image_id,file_id=img_path.split(slash)[-1:-3:-1]
-            cv2.imwrite(osp.join(self.new_data_images_path,"train",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
-            shutil.copy(osp.join(self.output_anno,f"{t[1]}"),osp.join(self.new_data_anno_path,"train",f"{t[1]}"))
+                        image=imgpp.main_process(image,agg_pars)
+                        #
+                        image_id,file_id=img_path.split(slash)[-1:-3:-1]
+                        cv2.imwrite(osp.join(self.new_data_images_path,"train",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
+                        shutil.copy(osp.join(self.output_anno_dir, f"{t[1]}"), osp.join(self.new_data_anno_path, "train", f"{t[1]}"))
 
         # Make annotations and images as pairs in validation set
         for t in val_tuples:
-            with open(osp.join(self.output_image,t[0])) as f:
-                img_path=f.read()
-                # print(img_path)
-            image=cv2.imread(img_path)
-            image_id,file_id=img_path.split(slash)[-1:-3:-1]
-            cv2.imwrite(osp.join(self.new_data_images_path,"val",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
-            shutil.copy(osp.join(self.output_anno,f"{t[1]}"),osp.join(self.new_data_anno_path,"val",f"{t[1]}"))
+            with open(osp.join(self.output_anno_dir, f"{t[1]}")) as f:
+                # Drop data which is not with a target in the view, pos in positions < 0
+                positions = f.read().split(" ")
+                for pos in positions[1:]:
+                    pos = float(pos)
+                    if pos < 0:
+                        continue
+                    else:
+                        with open(osp.join(self.output_image_dir, t[0])) as f:
+                            img_path=f.read()
+                            # print(img_path)
+                        image=cv2.imread(img_path)
+                        image_id,file_id=img_path.split(slash)[-1:-3:-1]
+                        cv2.imwrite(osp.join(self.new_data_images_path,"val",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
+                        shutil.copy(osp.join(self.output_anno_dir, f"{t[1]}"), osp.join(self.new_data_anno_path, "val", f"{t[1]}"))
 
 if __name__ == '__main__':
     pro_pars={
