@@ -45,11 +45,11 @@ if __name__ == '__main__':
         model_path=os.path.join(TRAINED_MODEL_ROOT,"yolov10s.pt")
         model=YOLO(model_path)
     elif args.model_name=="rtdetr":
-        model_path = os.path.join(TRAINED_MODEL_ROOT, "rtdetr-x.pt")
+        model_path = os.path.join(TRAINED_MODEL_ROOT, "rtdetr-l.pt")
         model=RTDETR(model_path)
     # Train the model with all_images GPUs
     results = model.train(data=datapath,
                           epochs=args.epochs,
                           imgsz=args.imgsz,
-                          device="cuda:1",
-                          optimizer='Adam')
+                          device="cuda:0",
+                          optimizer='SGD')
