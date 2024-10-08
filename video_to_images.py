@@ -6,8 +6,11 @@ coding:utf-8
 """
 import shutil
 import platform
+import time
 import cv2
 import os
+
+import xml.dom.minidom as xmldom
 
 system=platform.system().lower()
 slash=""
@@ -16,6 +19,12 @@ if system == 'windows':
 elif system == 'linux':
     slash="/"
 
+VIDEOS_ROOT = os.path.join(os.getcwd(), "dataset_local", "ARD-MAV", "videos")
+ANNO_PATH = os.path.join(os.getcwd(), "dataset_local", "ARD-MAV", "Annotations")
+IMAGES_ROOT = os.path.join(os.getcwd(), "datasets_processed", "ARD-MAV","video_images")
+OUTPUT_IMAGES_DIR = "all_images"
+OUTPUT_ANNOTATION_DIR = "all_annotations"
+BASE_PATH = os.curdir
 def video2imgs(videoPath,imgPath):
     # 目标文件夹不存在，则创建
     if not os.path.exists(imgPath):
@@ -43,13 +52,13 @@ def video2imgs(videoPath,imgPath):
         flag, frame = cap.read()         # 读取每一张图片 flag表示是否读取成功，frame是图片
         if not flag:
             print(flag)
-            print("Process finished!")
+            print(f"Process {video_dir} finished!")
             break
         else:
             if frames % 10 == 0:         # 每隔10帧抽一张
                 imgname = 'jpgs_' + str(count).rjust(3,'0') + ".jpg"
                 newPath = os.path.join(imgPath,imgname)
-                print(imgname,newPath)
+                # print(imgname,newPath)
                 cv2.imwrite(newPath, frame, [cv2.IMWRITE_JPEG_QUALITY, 100])
                 # cv2.imencode('.jpg', frame)[1].tofile(newPath)
                 count += 1
@@ -57,25 +66,79 @@ def video2imgs(videoPath,imgPath):
     cap.release()
     print("共有 %d 张图片"%(count-1))
 
-
 def mkdir(path):
     folder = os.path.exists(path)
-
     if not folder:  # 判断是否存在文件夹如果不存在则创建为文件夹
         os.makedirs(path)  # makedirs 创建文件时如果路径不存在会创建这个路径
 
+def annotation_xml_to_yolo(images_root,anno_root)->None:
+    """
+    The images will be put under path/video_images/directory_under_video_name
+    :param images_root: The root of the dataset from video transformed images.
+    :param anno_root: The root of annotation.
+    """
+
+    # delete the buffer directions
+    shutil.rmtree(os.path.join(BASE_PATH,OUTPUT_IMAGES_DIR))
+    shutil.rmtree(os.path.join(BASE_PATH,OUTPUT_ANNOTATION_DIR))
+    os.mkdir(os.path.join(BASE_PATH,OUTPUT_IMAGES_DIR))
+    os.mkdir(os.path.join(BASE_PATH,OUTPUT_ANNOTATION_DIR))
+    # start re-write
+    for video_dir in os.listdir(anno_root):
+        for f in os.listdir(os.path.join(anno_root,video_dir)):
+            xml_file_path=os.path.join(anno_root,video_dir,f)
+            # read xml files
+            xml_file = xmldom.parse(xml_file_path)
+
+            print(f)
+            eles = xml_file.documentElement
+            # try, if no object, continue
+            try:
+                xmin = float(eles.getElementsByTagName("xmin")[0].firstChild.data)
+                xmax = float(eles.getElementsByTagName("xmax")[0].firstChild.data)
+                ymin = float(eles.getElementsByTagName("ymin")[0].firstChild.data)
+                ymax = float(eles.getElementsByTagName("ymax")[0].firstChild.data)
+            except Exception as e:
+                print("error")
+                continue
+
+            width=float(eles.getElementsByTagName("width")[0].firstChild.data)
+            height = float(eles.getElementsByTagName("height")[0].firstChild.data)
+
+            # transform to yolo form
+            yolo_x = (xmin +  xmax) / (2*width)
+            yolo_y = (ymin + ymax) / (2*height)
+            yolo_w = (xmax-xmin) / width
+            yolo_h = (ymax-ymin) / height
+
+
+            with open(f'{BASE_PATH}/{OUTPUT_ANNOTATION_DIR}/{f}.txt', mode='w') as f:
+                f.write("0" + ' ')
+                f.write(str(yolo_x) + ' ')
+                f.write(str(yolo_y) + ' ')
+                f.write(str(yolo_w) + ' ')
+                f.write(str(yolo_h))
+
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
-    VIDEOS_ROOT = os.path.join(os.getcwd(), "dataset_local", "ARD-MAV", "videos")
-    ANNO_PATH = os.path.join(os.getcwd(), "dataset_local", "ARD-MAV", "Annotations")
-    IMAGES_ROOT = os.path.join(os.getcwd(), "datasets_processed", "ARD-MAV","video_images")
 
-    for dir_name in os.listdir(VIDEOS_ROOT):
-        video_path=os.path.join(VIDEOS_ROOT,dir_name)
-        img_dir_name=dir_name.split(".")[0]
-        img_dir_path=os.path.join(IMAGES_ROOT,img_dir_name)
-        # mkdir()
-        print(video_path)
-        video2imgs(video_path,img_dir_path)
 
-    # video2imgs(VIDEOS_PATH,IMAGES_PATH)
+    start_time=time.time()
+    # Videos to frames
+    # for dir_name in os.listdir(VIDEOS_ROOT):
+    #     video_path=os.path.join(VIDEOS_ROOT,dir_name)
+    #     img_dir_name=dir_name.split(".")[0]
+    #     img_dir_path=os.path.join(IMAGES_ROOT,img_dir_name)
+    #     video2imgs(video_path,img_dir_path)
+    # end_time=time.time()
+    # print(f"spend {end_time-start_time}s")
+
+    # Annotations to yolo form
+    annotation_xml_to_yolo(IMAGES_ROOT,ANNO_PATH)

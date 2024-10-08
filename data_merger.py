@@ -12,7 +12,7 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 from Image_preprocessor import ImagePreProcessor as imgpp
 
-IN_DIRECT="data_complete"
+IN_ROOT="dataset_original"
 OUTPUT_IMAGES_DIR= "all_images"
 OUTPUT_ANNOTATION_DIR= "all_annotations"
 DESTINATION_DIR="datasets_processed"
@@ -29,11 +29,11 @@ elif system == 'linux':
 
 class DataMerger():
     def __init__(self,
-                 in_direct=IN_DIRECT,
+                 in_direct="usc",
                  out_direct=(OUTPUT_IMAGES_DIR, OUTPUT_ANNOTATION_DIR),
                  base_path=BASE_PATH
                  ):
-        self.source=osp.join(base_path,in_direct)
+        self.source=osp.join(base_path,os.path.join(IN_ROOT,in_direct))
         self.output_image_dir=osp.join(base_path, out_direct[0])
         self.output_anno_dir = osp.join(base_path, out_direct[1])
         self.source_directs=os.listdir(self.source)
