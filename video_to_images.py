@@ -11,6 +11,10 @@ import cv2
 import os
 
 import xml.dom.minidom as xmldom
+import os.path as osp
+
+from sklearn.model_selection import train_test_split
+from Image_preprocessor import ImagePreProcessor as imgpp
 
 system=platform.system().lower()
 slash=""
@@ -19,9 +23,9 @@ if system == 'windows':
 elif system == 'linux':
     slash="/"
 
-VIDEOS_ROOT = os.path.join(os.getcwd(), "dataset_local", "ARD-MAV", "videos")
-ANNO_PATH = os.path.join(os.getcwd(), "dataset_local", "ARD-MAV", "Annotations")
-IMAGES_ROOT = os.path.join(os.getcwd(), "datasets_processed", "ARD-MAV","video_images")
+VIDEOS_ROOT = os.path.join(os.getcwd(), "datasets_original", "ARD-MAV", "videos")
+ANNO_PATH = os.path.join(os.getcwd(), "datasets_original", "ARD-MAV", "Annotations")
+IMAGES_ROOT = os.path.join(os.getcwd(), "datasets_local", "ARD-MAV","video_images")
 OUTPUT_IMAGES_DIR = "all_images"
 OUTPUT_ANNOTATION_DIR = "all_annotations"
 BASE_PATH = os.curdir
@@ -55,8 +59,8 @@ def video2imgs(videoPath,imgPath):
             print(f"Process {video_dir} finished!")
             break
         else:
-            if frames % 10 == 0:         # 每隔10帧抽一张
-                imgname = 'jpgs_' + str(count).rjust(3,'0') + ".jpg"
+            if frames % 1 == 0:         # 每隔1帧抽一张
+                imgname = f'{video_dir}_' + str(count).rjust(4,'0') + ".jpg"
                 newPath = os.path.join(imgPath,imgname)
                 # print(imgname,newPath)
                 cv2.imwrite(newPath, frame, [cv2.IMWRITE_JPEG_QUALITY, 100])
@@ -85,12 +89,12 @@ def annotation_xml_to_yolo(images_root,anno_root)->None:
     os.mkdir(os.path.join(BASE_PATH,OUTPUT_ANNOTATION_DIR))
     # start re-write
     for video_dir in os.listdir(anno_root):
-        for f in os.listdir(os.path.join(anno_root,video_dir)):
-            xml_file_path=os.path.join(anno_root,video_dir,f)
+        for file in os.listdir(os.path.join(anno_root,video_dir)):
+            xml_file_path=os.path.join(anno_root,video_dir,file)
             # read xml files
             xml_file = xmldom.parse(xml_file_path)
 
-            print(f)
+            # print(f)
             eles = xml_file.documentElement
             # try, if no object, continue
             try:
@@ -99,7 +103,7 @@ def annotation_xml_to_yolo(images_root,anno_root)->None:
                 ymin = float(eles.getElementsByTagName("ymin")[0].firstChild.data)
                 ymax = float(eles.getElementsByTagName("ymax")[0].firstChild.data)
             except Exception as e:
-                print("error")
+                print(f"{file} error")
                 continue
 
             width=float(eles.getElementsByTagName("width")[0].firstChild.data)
@@ -112,16 +116,77 @@ def annotation_xml_to_yolo(images_root,anno_root)->None:
             yolo_h = (ymax-ymin) / height
 
 
-            with open(f'{BASE_PATH}/{OUTPUT_ANNOTATION_DIR}/{f}.txt', mode='w') as f:
+            with open(f'{BASE_PATH}/{OUTPUT_ANNOTATION_DIR}/{file.split(".")[0]}.txt', mode='w') as f:
                 f.write("0" + ' ')
                 f.write(str(yolo_x) + ' ')
                 f.write(str(yolo_y) + ' ')
                 f.write(str(yolo_w) + ' ')
                 f.write(str(yolo_h))
 
+            # print(type(images_root),type(video_dir),type(file))
+            image_path=os.path.join(images_root,video_dir,file.split(".")[0]+".jpg")
+
+            shutil.copy(image_path,OUTPUT_IMAGES_DIR)
+
+
+def data_split(agg_pars=None):
+    if agg_pars is None:
+        agg_pars = {
+            "gray": 0,
+            "hist": 0,
+            "lap": 0
+        }
+    new_data_images_path=os.path.join(os.curdir,"datasets_processed","ARD-MAV","images")
+    new_data_anno_path=os.path.join(os.curdir,"datasets_processed","ARD-MAV","labels")
+
+    output_images_dir=OUTPUT_IMAGES_DIR
+    output_anno_dir=OUTPUT_ANNOTATION_DIR
 
 
 
+    shutil.rmtree(os.path.join(new_data_images_path,"train"))
+    shutil.rmtree(os.path.join(new_data_images_path, "val"))
+    shutil.rmtree(os.path.join(new_data_anno_path, "train"))
+    shutil.rmtree(os.path.join(new_data_anno_path, "val"))
+
+    os.mkdir(os.path.join(new_data_images_path,"train"))
+    os.mkdir(os.path.join(new_data_images_path,"val"))
+    os.mkdir(os.path.join(new_data_anno_path, "train"))
+    os.mkdir(os.path.join(new_data_anno_path, "val"))
+
+    # Split the data into training and test
+    annotations=os.listdir(output_anno_dir)
+    images=os.listdir(output_images_dir)
+    image_annotation_tuples=list(zip(images,annotations))
+    train_tuples, val_tuples = train_test_split(image_annotation_tuples,
+                                                 train_size=0.8,
+                                                 test_size=0.2,
+                                                 shuffle=False
+                                                 )
+
+    # Make annotations and images as pairs in training set
+    for t in train_tuples:
+        with open(osp.join(output_anno_dir, f"{t[1]}")) as f:
+            # Drop data which is not with a target in the view, pos in positions < 0
+            drop_tag=False
+            positions=f.read().split(" ")
+            for pos in positions[1:]:
+                pos=float(pos)
+                if pos<0:
+                    drop_tag=True
+                    break
+        if drop_tag:
+            continue
+        else:
+            with open(osp.join(output_images_dir, t[0])) as f:
+                img_path=f.read()
+            image=cv2.imread(img_path)
+
+            image=imgpp.main_process(image,agg_pars)
+            #
+            image_id,file_id=img_path.split(slash)[-1:-3:-1]
+            cv2.imwrite(osp.join(new_data_images_path,"train",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
+            shutil.copy(osp.join(output_anno_dir, f"{t[1]}"), osp.join(new_data_anno_path, "train", f"{t[1]}"))
 
 
 
@@ -129,16 +194,21 @@ def annotation_xml_to_yolo(images_root,anno_root)->None:
 
 if __name__ == '__main__':
 
-
+    print("start process")
     start_time=time.time()
     # Videos to frames
     # for dir_name in os.listdir(VIDEOS_ROOT):
     #     video_path=os.path.join(VIDEOS_ROOT,dir_name)
     #     img_dir_name=dir_name.split(".")[0]
     #     img_dir_path=os.path.join(IMAGES_ROOT,img_dir_name)
+    #
     #     video2imgs(video_path,img_dir_path)
-    # end_time=time.time()
-    # print(f"spend {end_time-start_time}s")
+
 
     # Annotations to yolo form
+    # print(IMAGES_ROOT)
     annotation_xml_to_yolo(IMAGES_ROOT,ANNO_PATH)
+    # data_split()
+
+    end_time=time.time()
+    print(f"spend {end_time-start_time}s")

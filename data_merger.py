@@ -12,7 +12,7 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 from Image_preprocessor import ImagePreProcessor as imgpp
 
-IN_ROOT="dataset_original"
+IN_ROOT="datasets_original"
 OUTPUT_IMAGES_DIR= "all_images"
 OUTPUT_ANNOTATION_DIR= "all_annotations"
 DESTINATION_DIR="datasets_processed"
