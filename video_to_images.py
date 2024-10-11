@@ -178,16 +178,37 @@ def data_split(agg_pars=None):
         if drop_tag:
             continue
         else:
-            with open(osp.join(output_images_dir, t[0])) as f:
-                img_path=f.read()
+            img_path=os.path.join(output_images_dir, t[0])
+
             image=cv2.imread(img_path)
 
             image=imgpp.main_process(image,agg_pars)
             #
             image_id,file_id=img_path.split(slash)[-1:-3:-1]
-            cv2.imwrite(osp.join(new_data_images_path,"train",f"{file_id}_{image_id.split('.')[0]}.jpg"),image)
+            cv2.imwrite(osp.join(new_data_images_path,"train",f"{image_id.split('.')[0]}.jpg"),image)
             shutil.copy(osp.join(output_anno_dir, f"{t[1]}"), osp.join(new_data_anno_path, "train", f"{t[1]}"))
 
+    # Make annotations and images as pairs in validation set
+    for t in val_tuples:
+        with open(os.path.join(output_anno_dir, f"{t[1]}")) as f:
+            # Drop data which is not with a target in the view, pos in positions < 0
+            drop_tag = False
+            positions = f.read().split(" ")
+            for pos in positions[1:]:
+                pos = float(pos)
+                if pos < 0:
+                    drop_tag = True
+                    break
+        if drop_tag:
+            continue
+        else:
+
+            img_path =os.path.join(output_images_dir, t[0])
+                # print(img_path)
+            image = cv2.imread(img_path)
+            image_id, file_id = img_path.split(slash)[-1:-3:-1]
+            cv2.imwrite(osp.join(new_data_images_path, "val", f"{file_id}_{image_id.split('.')[0]}.jpg"), image)
+            shutil.copy(osp.join(output_anno_dir, f"{t[1]}"), osp.join(new_data_anno_path, "val", f"{t[1]}"))
 
 
 
@@ -207,8 +228,8 @@ if __name__ == '__main__':
 
     # Annotations to yolo form
     # print(IMAGES_ROOT)
-    annotation_xml_to_yolo(IMAGES_ROOT,ANNO_PATH)
-    # data_split()
+    # annotation_xml_to_yolo(IMAGES_ROOT,ANNO_PATH)
+    data_split()
 
     end_time=time.time()
     print(f"spend {end_time-start_time}s")
