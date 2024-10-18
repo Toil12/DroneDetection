@@ -207,7 +207,7 @@ def data_split(agg_pars=None):
                 # print(img_path)
             image = cv2.imread(img_path)
             image_id, file_id = img_path.split(slash)[-1:-3:-1]
-            cv2.imwrite(osp.join(new_data_images_path, "val", f"{file_id}_{image_id.split('.')[0]}.jpg"), image)
+            cv2.imwrite(osp.join(new_data_images_path, "val", f"{image_id.split('.')[0]}.jpg"), image)
             shutil.copy(osp.join(output_anno_dir, f"{t[1]}"), osp.join(new_data_anno_path, "val", f"{t[1]}"))
 
 
