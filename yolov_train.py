@@ -9,7 +9,7 @@ import argparse
 import pathlib
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 import torch
 DATA_ROOT=os.path.join(os.getcwd(),"datasets_processed")
 TRAINED_MODEL_ROOT=os.path.join(os.getcwd(),"trained_models")
@@ -22,12 +22,12 @@ if __name__ == '__main__':
     parser.add_argument("--model_name",default="yolo_v8",type=str)
     parser.add_argument("--epochs",default=100,type=int)
     parser.add_argument("--imgsz",default=640,type=int)
-    parser.add_argument("--data_path",default="usc_5_v8.yaml",type=str)
+    parser.add_argument("--data_path",default="ard_mav.yaml",type=str)
 
     args=parser.parse_args()
 
 
-    datapath=pathlib.Path(YOLO_DATA_ROOT,args.data_path)
+    datapath=os.path.join(YOLO_DATA_ROOT,args.data_path)
     # print(datapath)
     # testpath=pathlib.Path(os.path.curdir,"")
 
@@ -51,5 +51,5 @@ if __name__ == '__main__':
     results = model.train(data=datapath,
                           epochs=args.epochs,
                           imgsz=args.imgsz,
-                          device="cuda:0",
+                          device=f"cuda:{devices}",
                           optimizer='SGD')

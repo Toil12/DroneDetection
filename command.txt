@@ -10,3 +10,5 @@ C:\Users\Lenovo\Downloads\yolov5l6.pt
 python yolov_train.py --model "yolo_v10" --imgsz 1280
 
 python yolov_train.py --model "rtdetr" --imgsz 640
+
+torchrun --nproc_per_node 2 yolov_train.py --model_name "rtdetr" --imgsz 1280
