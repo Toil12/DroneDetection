@@ -23,9 +23,10 @@ if system == 'windows':
 elif system == 'linux':
     slash="/"
 
-VIDEOS_ROOT = os.path.join(os.getcwd(), "datasets_original", "ARD-MAV", "videos")
-ANNO_PATH = os.path.join(os.getcwd(), "datasets_original", "ARD-MAV", "Annotations")
-IMAGES_ROOT = os.path.join(os.getcwd(), "datasets_local", "ARD-MAV","video_images")
+data_video_name="self"
+VIDEOS_ROOT = os.path.join(os.getcwd(), "datasets_original", data_video_name)
+ANNO_PATH = os.path.join(os.getcwd(), "datasets_original", data_video_name)
+IMAGES_ROOT = os.path.join(os.getcwd(), "datasets_local", data_video_name, "video_images")
 OUTPUT_IMAGES_DIR = "all_images"
 OUTPUT_ANNOTATION_DIR = "all_annotations"
 BASE_PATH = os.curdir
@@ -218,18 +219,18 @@ if __name__ == '__main__':
     print("start process")
     start_time=time.time()
     # Videos to frames
-    # for dir_name in os.listdir(VIDEOS_ROOT):
-    #     video_path=os.path.join(VIDEOS_ROOT,dir_name)
-    #     img_dir_name=dir_name.split(".")[0]
-    #     img_dir_path=os.path.join(IMAGES_ROOT,img_dir_name)
-    #
-    #     video2imgs(video_path,img_dir_path)
+    for dir_name in os.listdir(VIDEOS_ROOT):
+        video_path=os.path.join(VIDEOS_ROOT,dir_name)
+        img_dir_name=dir_name.split(".")[0]
+        img_dir_path=os.path.join(IMAGES_ROOT,img_dir_name)
+
+        video2imgs(video_path,img_dir_path)
 
 
     # Annotations to yolo form
     # print(IMAGES_ROOT)
     # annotation_xml_to_yolo(IMAGES_ROOT,ANNO_PATH)
-    data_split()
+    # data_split()
 
     end_time=time.time()
     print(f"spend {end_time-start_time}s")

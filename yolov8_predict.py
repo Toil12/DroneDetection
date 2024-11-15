@@ -15,13 +15,13 @@ from ultralytics import YOLO
 
 ROOT = os.getcwd()
 # Load a pretrained YOLOv8n model
-model = YOLO(f"./trained_models/best.pt")
+model = YOLO(f"./trained_models/best_yolo.pt")
 
 # Get the input image and the corresponding
-file_name = "0101280"
+file_name = "MVI_0519_0001.jpg"
 
-img_source= rf"D:\Codes\python\DroneDetection\{file_name}.jpg"
-video_source = os.path.join(ROOT,"phantom47.mp4")
+img_source= rf"D:\Codes\python\DroneDetection\{file_name}"
+video_source = os.path.join(ROOT,"datasets_original/self/MVI_0519.MP4")
 anno_source = rf"D:\Codes\python\DroneDetection\datasets\usc_all\labels\train\{file_name}.txt"
 
 # Plot the original image
@@ -34,7 +34,7 @@ anno_source = rf"D:\Codes\python\DroneDetection\datasets\usc_all\labels\train\{f
 
 # Run inference on the source
 start_time=time.time()
-results = model(video_source, save=True, show=True)  # list of Results objects
+results = model(img_source, save=True, show=True)  # list of Results objects
 end_time=time.time()
 print(f"use {end_time-start_time}s for inference")
 
